@@ -77,21 +77,21 @@ public class Help extends JavaPlugin {
                 }
                 lister.list();
 
-                /**
-                 * /help plugins
-                 */
+            /**
+             * /help plugins
+             */
             } else if (split.length == 1 && split[0].equalsIgnoreCase("plugins")) {
                 helpList.listPlugins(sender);
 
-                /**
-                 * /help reload
-                 */
+            /**
+             * /help reload
+             */
             } else if (split.length == 1 && split[0].equalsIgnoreCase("reload")) {
                 helpList.reload(sender, getDataFolder());
 
-                /**
-                 * /help search [query]
-                 */
+            /**
+             * /help search [query]
+             */
             } else if (split.length > 1 && split[0].equalsIgnoreCase("search")) {
                 String hname = "";
                 for (int i = 1; i < split.length; i++) {
@@ -105,9 +105,9 @@ public class Help extends JavaPlugin {
                 searcher.setQuery(hname);
                 searcher.search();
 
-                /**
-                 * /help [plugin] (#)
-                 */
+            /**
+             * /help [plugin] (#)
+             */
             } else if (split.length == 1 || (split.length == 2 && isInteger(split[1]))) {
                 Lister lister = new Lister(helpList, split[0], sender);
                 if (split.length == 2) {

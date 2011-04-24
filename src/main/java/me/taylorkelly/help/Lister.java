@@ -44,6 +44,7 @@ public class Lister {
         ChatColor descriptionColor = ChatColor.WHITE;
         ChatColor introDashColor = ChatColor.GOLD;
         ChatColor introTextColor = ChatColor.WHITE;
+
         if (player instanceof Player) {
             int width = 310;
 
@@ -81,7 +82,7 @@ public class Lister {
 
             }
         } else {
-            if (plugin == null) {
+            if (plugin == null) {   //display the default page?
                 player.sendMessage(introTextColor.toString() + "HELP (" + page + "/" + maxPages + ")");
             } else {
                 if (sortedEntries.isEmpty()) {
@@ -92,15 +93,13 @@ public class Lister {
             }
 
             for (HelpEntry entry : sortedEntries) {
-                String line = String.format("%s/%s%s : %s", commandColor.toString(),
+                String line = String.format("%s%s%s: %s", commandColor.toString(),
                         entry.command, ChatColor.WHITE.toString(), descriptionColor.toString()).
                         replace("[", ChatColor.GRAY.toString() + "[").replace("]", "]" + commandColor.toString());
 
-                    player.sendMessage( "   " + line +
+                    player.sendMessage("   " + line +
                             entry.description.replace("[", ChatColor.GRAY.toString() + "[").replace("]", "]"
                             + descriptionColor.toString()));
-
-                
             }
         }
     }
@@ -121,7 +120,7 @@ public class Lister {
         }
     }
 
-    public String whitespace(int length) {
+    public static String whitespace(int length) {
         int spaceWidth = JMinecraftFontWidthCalculator.getCharWidth(' ');
 
         StringBuilder ret = new StringBuilder();
@@ -133,7 +132,7 @@ public class Lister {
         return ret.toString();
     }
 
-    public String dashes(int length) {
+    public static String dashes(int length) {
         int spaceWidth = JMinecraftFontWidthCalculator.getCharWidth('-');
 
         StringBuilder ret = new StringBuilder();

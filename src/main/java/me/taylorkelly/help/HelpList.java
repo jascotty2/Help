@@ -104,15 +104,14 @@ public class HelpList {
                     index++;
                 }
             } else {
-                for (int index = 0, currentCount = 0; index < names.size() && ret.size() < size; ++index) {
-                    HelpEntry entry = mainHelpList.get(names.get(index));
+                int index = 0;
+                while (index < names.size() && ret.size() < size){
+                    String currName = names.get(index);
+                    HelpEntry entry = pluginHelpList.get(plugin).get(currName);
                     if (entry != null && entry.visible) {
-                        if (currentCount >= start) {
-                            ret.add(entry);
-                        }else {
-                            currentCount++;
-                        }
+                       ret.add(entry);
                     }
+                    index++;
                 }
             }
             return ret;
