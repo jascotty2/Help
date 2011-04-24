@@ -3,7 +3,7 @@ package me.taylorkelly.help;
 import com.jascotty2.JMinecraftFontWidthCalculator;
 import java.util.ArrayList;
 
-import org.angelsl.minecraft.randomshit.fontwidth.MinecraftFontWidthCalculator;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -81,16 +81,13 @@ public class Lister {
 
             }
         } else {
-            int width = 90;
             if (plugin == null) {
-                player.sendMessage(introDashColor.toString() + JMinecraftFontWidthCalculator.unformattedPadCenter(
-                        introTextColor.toString() + " HELP (" + page + "/" + maxPages + ") " + introDashColor.toString(), width, '-'));
+                player.sendMessage(introTextColor.toString() + "HELP (" + page + "/" + maxPages + ")");
             } else {
                 if (sortedEntries.isEmpty()) {
-                    player.sendMessage(ChatColor.RED.toString() + plugin + " has no Help entries");
+                    player.sendMessage(ChatColor.RED.toString() + "Plugin " + plugin + " has no Help entries");
                 } else {
-                    player.sendMessage(introDashColor.toString() + JMinecraftFontWidthCalculator.unformattedPadCenter(
-                            introTextColor.toString() + " " + plugin.toUpperCase() + " HELP (" + page + "/" + maxPages + ") " + introDashColor.toString(), width, '-'));
+                    player.sendMessage(introTextColor.toString() + plugin.toUpperCase() + " HELP (" + page + "/" + maxPages + ")");
                 }
             }
 
@@ -99,20 +96,10 @@ public class Lister {
                         entry.command, ChatColor.WHITE.toString(), descriptionColor.toString()).
                         replace("[", ChatColor.GRAY.toString() + "[").replace("]", "]" + commandColor.toString());
 
-                //Find remaining length left
-                int descriptionSize = entry.description.length();
-                int sizeRemaining = width - JMinecraftFontWidthCalculator.strLen(line);
+                    player.sendMessage( "   " + line +
+                            entry.description.replace("[", ChatColor.GRAY.toString() + "[").replace("]", "]"
+                            + descriptionColor.toString()));
 
-                if (sizeRemaining > descriptionSize) {
-                    player.sendMessage(line + JMinecraftFontWidthCalculator.unformattedPadLeft(
-                            entry.description.replace("[", ChatColor.GRAY.toString() + "[").
-                            replace("]", "]" + descriptionColor.toString()), sizeRemaining, ' '));
-                } else {
-                    player.sendMessage(line);
-                    player.sendMessage(JMinecraftFontWidthCalculator.unformattedPadLeft(
-                            entry.description.replace("[", ChatColor.GRAY.toString() + "[").
-                            replace("]", "]" + descriptionColor.toString()), width, ' '));
-                }
                 
             }
         }
@@ -135,7 +122,7 @@ public class Lister {
     }
 
     public String whitespace(int length) {
-        int spaceWidth = MinecraftFontWidthCalculator.getCharWidth(' ');
+        int spaceWidth = JMinecraftFontWidthCalculator.getCharWidth(' ');
 
         StringBuilder ret = new StringBuilder();
 
@@ -147,7 +134,7 @@ public class Lister {
     }
 
     public String dashes(int length) {
-        int spaceWidth = MinecraftFontWidthCalculator.getCharWidth('-');
+        int spaceWidth = JMinecraftFontWidthCalculator.getCharWidth('-');
 
         StringBuilder ret = new StringBuilder();
 

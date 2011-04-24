@@ -1,8 +1,8 @@
 package me.taylorkelly.help;
 
+import com.jascotty2.JMinecraftFontWidthCalculator;
 import java.io.File;
 import java.io.IOException;
-import org.angelsl.minecraft.randomshit.fontwidth.MinecraftFontWidthCalculator;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -99,14 +99,14 @@ public class HelpEntry {
         String entry = String.format("%s/%s%s : %s", commandColor.toString(),
                 command, ChatColor.WHITE.toString(), descriptionColor.toString());
         //Find remaining length left
-        int sizeRemaining = width - MinecraftFontWidthCalculator.getStringWidth(entry);
+        int sizeRemaining = width - JMinecraftFontWidthCalculator.getStringWidth(entry);
         //entryBuilder = new StringBuilder(entryBuilder.toString().replace("[", ChatColor.GRAY.toString() + "[").replace("]", "]" + commandColor.toString()));
 
-        int descriptionSize = MinecraftFontWidthCalculator.getStringWidth(desc);
+        int descriptionSize = JMinecraftFontWidthCalculator.getStringWidth(desc);
         if (sizeRemaining > descriptionSize) {
             return 1;
         } else {
-            return 1 + (int) Math.ceil((double) MinecraftFontWidthCalculator.getStringWidth("  " + desc) / width);
+            return 1 + (int) Math.ceil((double) JMinecraftFontWidthCalculator.getStringWidth("  " + desc) / width);
         }
     }
 

@@ -27,6 +27,8 @@ public class Help extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        helpList = null;
+        HelpLogger.info(name + " " + version + " disabled");
     }
 
     @Override
@@ -34,7 +36,6 @@ public class Help extends JavaPlugin {
         name = this.getDescription().getName();
         version = this.getDescription().getVersion();
 
-        LegacyHelpLoader.load(this.getDataFolder(), helpList);
         HelpLoader.load(this.getDataFolder(), helpList);
 
         HelpPermissions.initialize(getServer());
@@ -55,81 +56,79 @@ public class Help extends JavaPlugin {
         String[] split = args;
         String commandName = command.getName().toLowerCase();
 
-        //if (sender instanceof Player) {
-            if (commandName.equals("help")) {
-                /**
-                 * /help (#)
-                 */
-                if (split.length == 0 || (split.length == 1 && isInteger(split[0]))) {
-                    Lister lister = new Lister(helpList, sender);
-                    if (split.length == 1) {
-                        int page = Integer.parseInt(split[0]);
-                        if (page < 1) {
-                            sender.sendMessage(ChatColor.RED + "Page number can't be below 1.");
-                            return true;
-                        } else if (page > lister.getMaxPages()) {
-                            sender.sendMessage(ChatColor.RED + "There are only " + lister.getMaxPages() + " pages of help");
-                            return true;
-                        }
-                        lister.setPage(page);
-                    } else {
-                        lister.setPage(1);
+        if (commandName.equals("help")) {
+            /**
+             * /help (#)
+             */
+            if (split.length == 0 || (split.length == 1 && isInteger(split[0]))) {
+                Lister lister = new Lister(helpList, sender);
+                if (split.length == 1) {
+                    int page = Integer.parseInt(split[0]);
+                    if (page < 1) {
+                        sender.sendMessage(ChatColor.RED + "Page number can't be below 1.");
+                        return true;
+                    } else if (page > lister.getMaxPages()) {
+                        sender.sendMessage(ChatColor.RED + "There are only " + lister.getMaxPages() + " pages of help");
+                        return true;
                     }
-                    lister.list();
-
-                    /**
-                     * /help plugins
-                     */
-                } else if (split.length == 1 && split[0].equalsIgnoreCase("plugins")) {
-                    helpList.listPlugins(sender);
-
-                    /**
-                     * /help reload
-                     */
-                } else if (split.length == 1 && split[0].equalsIgnoreCase("reload")) {
-                    helpList.reload(sender, getDataFolder());
-
-                    /**
-                     * /help search [query]
-                     */
-                } else if (split.length > 1 && split[0].equalsIgnoreCase("search")) {
-                    String hname = "";
-                    for (int i = 1; i < split.length; i++) {
-                        hname += split[i];
-                        if (i + 1 < split.length) {
-                            hname += " ";
-                        }
-                    }
-                    Searcher searcher = new Searcher(helpList);
-                    searcher.addPlayer(sender);
-                    searcher.setQuery(hname);
-                    searcher.search();
-
-                    /**
-                     * /help [plugin] (#)
-                     */
-                } else if (split.length == 1 || (split.length == 2 && isInteger(split[1]))) {
-                    Lister lister = new Lister(helpList, split[0], sender);
-                    if (split.length == 2) {
-                        int page = Integer.parseInt(split[1]);
-                        if (page < 1) {
-                            sender.sendMessage(ChatColor.RED + "Page number can't be below 1.");
-                            return true;
-                        } else if (page > lister.getMaxPages(sender)) {
-                            sender.sendMessage(ChatColor.RED + "There are only " + lister.getMaxPages(sender) + " pages of help");
-                            return true;
-                        }
-                        lister.setPage(page);
-                    } else {
-                        lister.setPage(1);
-                    }
-                    lister.list();
+                    lister.setPage(page);
                 } else {
-                    return false;
+                    lister.setPage(1);
                 }
-                return true;
+                lister.list();
+
+                /**
+                 * /help plugins
+                 */
+            } else if (split.length == 1 && split[0].equalsIgnoreCase("plugins")) {
+                helpList.listPlugins(sender);
+
+                /**
+                 * /help reload
+                 */
+            } else if (split.length == 1 && split[0].equalsIgnoreCase("reload")) {
+                helpList.reload(sender, getDataFolder());
+
+                /**
+                 * /help search [query]
+                 */
+            } else if (split.length > 1 && split[0].equalsIgnoreCase("search")) {
+                String hname = "";
+                for (int i = 1; i < split.length; i++) {
+                    hname += split[i];
+                    if (i + 1 < split.length) {
+                        hname += " ";
+                    }
+                }
+                Searcher searcher = new Searcher(helpList);
+                searcher.addPlayer(sender);
+                searcher.setQuery(hname);
+                searcher.search();
+
+                /**
+                 * /help [plugin] (#)
+                 */
+            } else if (split.length == 1 || (split.length == 2 && isInteger(split[1]))) {
+                Lister lister = new Lister(helpList, split[0], sender);
+                if (split.length == 2) {
+                    int page = Integer.parseInt(split[1]);
+                    if (page < 1) {
+                        sender.sendMessage(ChatColor.RED + "Page number can't be below 1.");
+                        return true;
+                    } else if (page > lister.getMaxPages(sender)) {
+                        sender.sendMessage(ChatColor.RED + "There are only " + lister.getMaxPages(sender) + " pages of help");
+                        return true;
+                    }
+                    lister.setPage(page);
+                } else {
+                    lister.setPage(1);
+                }
+                lister.list();
+            } else {
+                return false;
             }
-        //} //TODO Console help
+            return true;
+        }
         return false;
     }
 
