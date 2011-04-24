@@ -21,7 +21,7 @@ public class HelpLoader {
         File files[] = helpFolder.listFiles(new YmlFilter());
         if(files==null) return;
         for (File insideFile : files) {
-            System.out.println(insideFile);
+            HelpLogger.info("Loading ExtraHelp file: " + insideFile);
             final Yaml yaml = new Yaml(new SafeConstructor());
             Map<String, Object> root;
             FileInputStream input = null;

@@ -28,7 +28,6 @@ public class HelpList {
         collator.setStrength(Collator.SECONDARY);
         Collections.sort(names, collator);
 
-
         if (player instanceof Player) {
             int index = 0;
             int currentCount = 0;
@@ -80,42 +79,42 @@ public class HelpList {
         ArrayList<HelpEntry> ret = new ArrayList<HelpEntry>();
         if (!pluginHelpList.containsKey(plugin)) {
             return ret;
-        } else {
-            List<String> names = new ArrayList<String>(pluginHelpList.get(plugin).keySet());
-            Collator collator = Collator.getInstance();
-            collator.setStrength(Collator.SECONDARY);
-            Collections.sort(names, collator);
-
-            if (player instanceof Player) {
-                int index = 0;
-                int currentCount = 0;
-                int lineLength = 0;
-                while (index < names.size() && ret.size() < size){// && lineLength < size) {
-                    String currName = names.get(index);
-                    HelpEntry entry = pluginHelpList.get(plugin).get(currName);
-                    if (entry != null && entry.playerCanUse((Player) player) && entry.visible) {
-                        if (currentCount >= start) {
-                            ret.add(entry);
-                            lineLength += entry.lineLength;
-                        } else {
-                            currentCount++;
-                        }
-                    }
-                    index++;
-                }
-            } else {
-                int index = 0;
-                while (index < names.size() && ret.size() < size){
-                    String currName = names.get(index);
-                    HelpEntry entry = pluginHelpList.get(plugin).get(currName);
-                    if (entry != null && entry.visible) {
-                       ret.add(entry);
-                    }
-                    index++;
-                }
-            }
-            return ret;
         }
+
+        List<String> names = new ArrayList<String>(pluginHelpList.get(plugin).keySet());
+        Collator collator = Collator.getInstance();
+        collator.setStrength(Collator.SECONDARY);
+        Collections.sort(names, collator);
+
+        if (player instanceof Player) {
+            int index = 0;
+            int currentCount = 0;
+            int lineLength = 0;
+            while (index < names.size() && ret.size() < size){// && lineLength < size) {
+                String currName = names.get(index);
+                HelpEntry entry = pluginHelpList.get(plugin).get(currName);
+                if (entry != null && entry.playerCanUse((Player) player) && entry.visible) {
+                    if (currentCount >= start) {
+                        ret.add(entry);
+                        lineLength += entry.lineLength;
+                    } else {
+                        currentCount++;
+                    }
+                }
+                index++;
+            }
+        } else {
+            int index = 0;
+            while (index < names.size() && ret.size() < size){
+                String currName = names.get(index);
+                HelpEntry entry = pluginHelpList.get(plugin).get(currName);
+                if (entry != null && entry.visible) {
+                   ret.add(entry);
+                }
+                index++;
+            }
+        }
+        return ret;
     }
 
     public MatchList getMatches(String query, CommandSender player) {
@@ -195,10 +194,19 @@ public class HelpList {
     public boolean registerCommand(String command, String description, String plugin, boolean main, String[] permissions, File dataFolder) {
         HelpEntry entry = new HelpEntry(command, description, plugin, main, permissions, true);
         entry.save(dataFolder);
-        if (main && !mainHelpList.containsKey(command)) {
+        if (main && !mainHelpList.containsKey(command) && !isRegistered(command)) {
             mainHelpList.put(command, entry);
         }
         savePluginEntry(plugin, entry);
+        return true;
+    }
+
+    public boolean customRegisterCommand(String command, String description, String plugin, boolean main, String[] permissions, boolean visible) {
+        HelpEntry entry = new HelpEntry(command, description, plugin, main, permissions, visible);
+       if (main) {
+            mainHelpList.put(command, entry);
+        }
+        customSaveEntry(plugin, entry, true);
         return true;
     }
 
@@ -243,7 +251,7 @@ public class HelpList {
         HelpLoader.load(dataFolder, this);
 
         for (HelpEntry entry : savedList) {
-            if (entry.main && !mainHelpList.containsKey(entry.command)) {
+            if (entry.main && !mainHelpList.containsKey(entry.command) && !isRegistered(entry.command)) {
                 mainHelpList.put(entry.command, entry);
             }
             customSaveEntry(entry.plugin, entry, false);
@@ -256,12 +264,10 @@ public class HelpList {
         savedList.add(entry);
     }
 
-    public boolean customRegisterCommand(String command, String description, String plugin, boolean main, String[] permissions, boolean visible) {
-        HelpEntry entry = new HelpEntry(command, description, plugin, main, permissions, visible);
-        if (main) {
-            mainHelpList.put(command, entry);
+    private boolean isRegistered(String command){
+        for(HashMap map : pluginHelpList.values()){
+            if(map.containsKey(command)) return true;
         }
-        customSaveEntry(plugin, entry, true);
-        return true;
+        return false;
     }
 }
