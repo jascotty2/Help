@@ -1,7 +1,0 @@
-name: Help
-version: 0.2.4.1
-main: me.taylorkelly.help.Help
-commands:
-  help:
-    description: Your friendly /help menu
-    usage: /<command> - Displays help for all commands
