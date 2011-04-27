@@ -14,7 +14,7 @@ public class HelpLoader {
 
     public static void load(File dataFolder, HelpList list) {
         File helpFolder = new File(dataFolder, "ExtraHelp");
-        if (helpFolder.exists()) {
+        if (!helpFolder.exists()) {
             helpFolder.mkdirs();
         }
         int count = 0;
@@ -28,6 +28,10 @@ public class HelpLoader {
             try {
                 input = new FileInputStream(insideFile);
                 root = (Map<String, Object>) yaml.load(new UnicodeReader(input));
+                if (root == null || root.isEmpty()) {
+                	System.out.println("The file " + insideFile + " is empty");
+                	continue;
+                }
 
                 for (String helpKey : root.keySet()) {
                     Map<String, Object> helpNode = (Map<String, Object>) root.get(helpKey);
