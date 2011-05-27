@@ -17,14 +17,23 @@ public class Help extends JavaPlugin {
     protected static HelpList helpList = null;
     protected static HelpSettings settings = null;
 
+    public Help() {
+        dataFolder = this.getDataFolder();
+        if (dataFolder == null) {
+            dataFolder = new File("plugins" + File.separatorChar + "Help");
+        }
+        settings = new HelpSettings(dataFolder);
+        helpList = new HelpList(dataFolder);
+        HelpLoader.load(dataFolder, helpList);
+    }
+
     @Override
     public void onEnable() {
-        dataFolder = this.getDataFolder();
-        settings = new HelpSettings(dataFolder);
+        if (settings == null || helpList == null) {
+            settings = new HelpSettings(dataFolder);
+            helpList = new HelpList(dataFolder);
+        }
         version = this.getDescription().getVersion();
-        helpList = new HelpList(dataFolder);
-
-        HelpLoader.load(dataFolder, helpList);
 
         HelpPermissions.initialize(getServer());
 
@@ -34,6 +43,7 @@ public class Help extends JavaPlugin {
     @Override
     public void onDisable() {
         helpList = null;
+        settings = null;
         HelpLogger.Log("disabled");
     }
 
@@ -122,7 +132,7 @@ public class Help extends JavaPlugin {
      * @return if the command was registered in Help
      */
     public boolean registerCommand(String command, String description, Plugin plugin) {
-        if ((settings.allowPluginHelp || plugin == this) && plugin != null) {
+        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
             return helpList.registerCommand(command, description, plugin.getDescription().getName(), false, new String[]{}, this.getDataFolder());
         }
         return false;
@@ -137,7 +147,7 @@ public class Help extends JavaPlugin {
      * @return
      */
     public boolean registerCommand(String command, String description, Plugin plugin, boolean main) {
-        if ((settings.allowPluginHelp || plugin == this) && plugin != null) {
+        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
             return helpList.registerCommand(command, description, plugin.getDescription().getName(), main, new String[]{}, this.getDataFolder());
         }
         return false;
@@ -152,7 +162,7 @@ public class Help extends JavaPlugin {
      * @return
      */
     public boolean registerCommand(String command, String description, Plugin plugin, String... permissions) {
-        if ((settings.allowPluginHelp || plugin == this) && plugin != null) {
+        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
             return helpList.registerCommand(command, description, plugin.getDescription().getName(), false, permissions, this.getDataFolder());
         }
         return false;
@@ -168,7 +178,7 @@ public class Help extends JavaPlugin {
      * @return
      */
     public boolean registerCommand(String command, String description, Plugin plugin, boolean main, String... permissions) {
-        if ((settings.allowPluginHelp || plugin == this) && plugin != null) {
+        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
             return helpList.registerCommand(command, description, plugin.getDescription().getName(), main, permissions, this.getDataFolder());
         }
         return false;

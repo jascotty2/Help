@@ -18,6 +18,9 @@ added formatting options:
 - - can be right-aligned (wordWrapRight:true)
 plugin entries can be set to not sorted (listed in the order found in the help file)
 "/help reload" is now op-only
+"ExtraHelp.yml" will now be converted (again.. seems to have been removed somewhere..)
+ExtraHelp supports a multi-directory structure (like FabiaN's help package) (plugin name will be the directory name)
+improved node error messages when loading
 
 
 Version 0.2.4.1 - 4/4/11
