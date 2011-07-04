@@ -4,12 +4,13 @@ Help
 jascotty2 Changelog
 -----------------
 
-Version 0.3 - ?
+Version 0.3 - 7/4/11
 plugin console output fixed
 console output width changed for when running windows
-plugin help ovverride can be disabled (default)
-[]- plugin help registering is ignored if the command exists already
+plugin help override can be disabled (default)
+- plugin help registering is ignored if the command exists already
 - alternatively, can be disabled completely
+saving of registered commands can be disabled (also, now saves to file, not "_orig" files)
 ExtraHelp now uses filename as plugin name (plugin field no longer used)
 added formatting options: 
 - shortenEntries : can show in old, one-line style
@@ -21,6 +22,7 @@ plugin entries can be set to not sorted (listed in the order found in the help f
 "ExtraHelp.yml" will now be converted (again.. seems to have been removed somewhere..)
 ExtraHelp supports a multi-directory structure (like FabiaN's help package) (plugin name will be the directory name)
 improved node error messages when loading
+fixed permissions 3x illegalAccessErrors on load (and api errors)
 
 
 Version 0.2.4.1 - 4/4/11

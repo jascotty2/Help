@@ -3,6 +3,7 @@ package me.taylorkelly.help;
 import com.jascotty2.CheckInput;
 import com.jascotty2.Str;
 import java.io.File;
+import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,17 +23,17 @@ public class Help extends JavaPlugin {
         if (dataFolder == null) {
             dataFolder = new File("plugins" + File.separatorChar + "Help");
         }
-        settings = new HelpSettings(dataFolder);
-        helpList = new HelpList(dataFolder);
-        HelpLoader.load(dataFolder, helpList);
     }
 
     @Override
     public void onEnable() {
+
         if (settings == null || helpList == null) {
             settings = new HelpSettings(dataFolder);
             helpList = new HelpList(dataFolder);
         }
+        HelpLoader.load(dataFolder, helpList);
+
         version = this.getDescription().getVersion();
 
         HelpPermissions.initialize(getServer());
@@ -182,5 +183,24 @@ public class Help extends JavaPlugin {
             return helpList.registerCommand(command, description, plugin.getDescription().getName(), main, permissions, this.getDataFolder());
         }
         return false;
+    }
+
+    /**
+     * Gets the help text associated with this command
+     * @param command the command to lookup
+     * @return help text, or null if none
+     */
+    public String getHelp(String command) {
+        return helpList.getCommandHelp(command);
+    }
+    
+    
+    /**
+     * Gets all of the commands registered with this plugin
+     * @param plugin plugin to lookup
+     * @return list of commands
+     */
+    public ArrayList<String> getPluginCommands(String plugin) {
+        return helpList.getPluginCommands(plugin);
     }
 }

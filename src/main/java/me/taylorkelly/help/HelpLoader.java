@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
@@ -25,7 +26,7 @@ public class HelpLoader {
             if (files == null) {
                 return;
             }
-            String filesLoaded = "";
+            HashMap<String, Integer> filesLoaded = new HashMap <String, Integer>();
             for (File insideFile : files) {
                 String fileName, fn = insideFile.getAbsolutePath();
                 if (fn.length() > folder.length()) {
@@ -118,11 +119,20 @@ public class HelpLoader {
                         ++num;
                         ++count;
                     }
-                    filesLoaded += fileName + String.format("(%d), ", num);
+                    if(filesLoaded.containsKey(fileName)){
+                        filesLoaded.put(fileName,filesLoaded.get(fileName)+num );
+                    }else{
+                        filesLoaded.put(fileName,num );
+                    }
+                    //filesLoaded += fileName + String.format("(%d), ", num);
                 }
             }
+            String loaded = "";
+            for(String f : filesLoaded.keySet()){ //Arrays.sort()
+                loaded += String.format("%s(%d), ", f, filesLoaded.get(f));
+            }
             //HelpLogger.info(count + " extra help entries loaded" + (filesLoaded.length()>2 ? " from files: " + filesLoaded.replaceFirst(", $", "") : ""));
-            HelpLogger.info(count + " extra help entries loaded" + (filesLoaded.length() > 2 ? " from files: " + filesLoaded.substring(0, filesLoaded.length() - 2) : ""));
+            HelpLogger.info(count + " extra help entries loaded" + (loaded.length() > 2 ? " from files: " + loaded.substring(0, loaded.length() - 2) : ""));
         } else {
             HelpLogger.warning("Error: ExtraHelp is a file");
         }

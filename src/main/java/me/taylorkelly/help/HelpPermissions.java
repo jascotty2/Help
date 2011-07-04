@@ -8,23 +8,25 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 import org.anjocaido.groupmanager.GroupManager;
 
 public class HelpPermissions {
+
     private enum PermissionHandler {
 
         PERMISSIONS, GROUP_MANAGER, NONE
     }
     private static PermissionHandler handler;
     private static Plugin permissionPlugin;
+    private static boolean permErr = false;
 
     public static void initialize(Server server) {
         Plugin groupManager = server.getPluginManager().getPlugin("GroupManager");
         Plugin permissions = server.getPluginManager().getPlugin("Permissions");
 
-        if (groupManager != null) {
+        if (groupManager != null/* && groupManager.isEnabled()*/) {
             permissionPlugin = groupManager;
             handler = PermissionHandler.GROUP_MANAGER;
             String version = groupManager.getDescription().getVersion();
             HelpLogger.info("Permissions enabled using: GroupManager v" + version);
-        } else if (permissions != null) {
+        } else if (permissions != null/* && permissions.isEnabled()*/) {
             permissionPlugin = permissions;
             handler = PermissionHandler.PERMISSIONS;
             String version = permissions.getDescription().getVersion();
@@ -36,15 +38,23 @@ public class HelpPermissions {
     }
 
     public static boolean permission(Player player, String permission) {
-        switch (handler) {
-            case PERMISSIONS:
-                return ((Permissions)permissionPlugin).getHandler().permission(player, permission);
-            case GROUP_MANAGER:
-                return ((GroupManager)permissionPlugin).getWorldsHolder().getWorldPermissions(player).has(player, permission);
-            case NONE:
-                return true;
-            default:
-                return true;
+        try {
+            switch (handler) {
+                case PERMISSIONS:
+                    return ((Permissions) permissionPlugin).getHandler().has(player, permission);
+                case GROUP_MANAGER:
+                    return ((GroupManager) permissionPlugin).getWorldsHolder().getWorldPermissions(player).has(player, permission);
+                case NONE:
+                    return true;
+                default:
+                    return true;
+            }
+        } catch (Exception ex) {
+            if (!permErr) {
+                HelpLogger.severe("Unexpected Error checking permission: defaulting to true", ex);
+                permErr = true;
+            }
+            return true;
         }
     }
 }

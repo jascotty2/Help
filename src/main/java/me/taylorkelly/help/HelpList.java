@@ -176,16 +176,35 @@ public class HelpList {
         return new MatchList(commandMatches, pluginExactMatches, pluginPartialMatches, descriptionMatches);
     }
 
+    /**
+     * Gets all of the commands registered with this plugin
+     * @param plugin plugin to lookup
+     * @return list of commands
+     */
     public ArrayList<String> getPluginCommands(String plugin) {
         ArrayList<String> ret = new ArrayList<String>();
-        if (pluginHelpList.containsKey(plugin)) {
-            for (HelpEntry entry : pluginHelpList.get(plugin)) {
-                if (entry != null) {
-                    ret.add(entry.command);
+        if (plugin != null) {
+            plugin = plugin.toLowerCase();
+            if (pluginHelpList.containsKey(plugin)) {
+                for (HelpEntry entry : pluginHelpList.get(plugin)) {
+                    if (entry != null) {
+                        ret.add(entry.command);
+                    }
                 }
             }
         }
         return ret;
+    }
+
+    /**
+     * Gets the help text associated with this command
+     * @param command the command to lookup
+     * @return help text, or null if none
+     */
+    public String getCommandHelp(String command) {
+        if(command == null) return null;
+        HelpEntry t = commandsList.get(command.toLowerCase());
+        return t != null ? t.description : null;
     }
 
     public void reload(CommandSender player, File dataFolder) {
@@ -213,11 +232,14 @@ public class HelpList {
 
     public boolean registerCommand(String command, String description, String plugin, boolean main, String[] permissions, File folder) {
         if (command != null && description != null) {
+            command = command.trim();
             if (!Help.settings.allowPluginOverride) {
-                // TODO: check if the command (not plugin:command) is already registered
-                
+                // check if the command (not plugin:command) is already registered
+                if(commandsList.containsKey(command.toLowerCase())){
+                    return false;
+                }
             }
-            HelpEntry entry = new HelpEntry(command.trim(), description.trim(), plugin, main, permissions, true);
+            HelpEntry entry = new HelpEntry(command, description.trim(), plugin, main, permissions, true);
             if (Help.settings.savePluginHelp) {
                 entry.save(folder);
             }
@@ -239,6 +261,11 @@ public class HelpList {
         } else {
             savedList.add(entry);
         }
+        if (commandsList.containsKey(entry.command.toLowerCase())) {
+            commandsList.get(entry.command.toLowerCase()).setEntry(entry);
+        } else {
+            commandsList.put(entry.command.toLowerCase(), entry);
+        }
     }
 
     /**
@@ -249,6 +276,7 @@ public class HelpList {
      */
     private void customSaveEntry(String plugin, HelpEntry entry, boolean priority) {
         if (plugin != null && entry != null) {
+            plugin = plugin.toLowerCase();
             if (pluginHelpList.containsKey(plugin)) {
                 ArrayList<String> plgs = getPluginCommands(plugin);
                 int i = plgs.indexOf(entry.command);
@@ -284,7 +312,7 @@ public class HelpList {
         registerCommand("help reload", "Reload the ExtraHelp.yml entries", Help.name, false, null);
     }
 
-    public void sortPluginHelp(String plugin){
+    public void sortPluginHelp(String plugin) {
         if (Help.settings.sortPluginHelp && plugin != null && pluginHelpList.containsKey(plugin)) {
             java.util.Collections.sort(pluginHelpList.get(plugin), new EntryComparator());
         }

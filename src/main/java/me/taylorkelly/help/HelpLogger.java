@@ -9,7 +9,6 @@ public class HelpLogger {
 
     public static void severe(String string, Exception ex) {
         logger.log(Level.SEVERE, "[HELP] " + string, ex);
-
     }
 
     public static void severe(String string) {

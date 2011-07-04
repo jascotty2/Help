@@ -29,6 +29,7 @@ public class JMinecraftFontWidthCalculator {
     }
 
     public static int getCharWidth(char c) {
+        //return getCharWidth(c, 0);
         int k = charWidthIndexIndex.indexOf(c);
         if (c != '\247' && k >= 0) {
             return charWidths[k];
