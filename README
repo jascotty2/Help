@@ -4,7 +4,11 @@ Help
 jascotty2 Changelog
 -----------------
 
-Version 0.3 - 7/4/11
+Version 0.3 - 7/6/11
+fixed loading help & plugin help registering before plugin onEnable
+
+
+Version 0.3 "beta2" - 7/4/11
 plugin console output fixed
 console output width changed for when running windows
 plugin help override can be disabled (default)

@@ -23,6 +23,8 @@ public class Help extends JavaPlugin {
         if (dataFolder == null) {
             dataFolder = new File("plugins" + File.separatorChar + "Help");
         }
+        settings = new HelpSettings(dataFolder);
+        helpList = new HelpList(dataFolder);
     }
 
     @Override
@@ -193,8 +195,7 @@ public class Help extends JavaPlugin {
     public String getHelp(String command) {
         return helpList.getCommandHelp(command);
     }
-    
-    
+
     /**
      * Gets all of the commands registered with this plugin
      * @param plugin plugin to lookup
