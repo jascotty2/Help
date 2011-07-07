@@ -4,6 +4,10 @@ Help
 jascotty2 Changelog
 -----------------
 
+Version 0.3.1 - 7/7/11
+fixed NullPointerException on entry save when no permissions 
+
+
 Version 0.3 - 7/6/11
 fixed loading help & plugin help registering before plugin onEnable
 
