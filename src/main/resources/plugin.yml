@@ -1,5 +1,5 @@
 name: Help
-version: 0.3.1
+version: 0.3.2
 main: me.taylorkelly.help.Help
 authors: [jascotty2, tkelly]
 commands:

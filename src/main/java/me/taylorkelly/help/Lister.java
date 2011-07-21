@@ -80,6 +80,7 @@ public final class Lister {
 
                 for (HelpEntry entry : sortedEntries) {
                     for (String l : entry.chatString().split("\n")) {
+                        //System.out.println("sending '" + l + "' (" + JMinecraftFontWidthCalculator.getStringWidth(l) + " pixels long)");
                         player.sendMessage(l);
                     }
                 }

@@ -41,6 +41,40 @@ public class Help extends JavaPlugin {
         HelpPermissions.initialize(getServer());
 
         HelpLogger.Log(version + " enabled");
+
+//        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+//
+//            int i = -1;
+//            String check = " !,.:;I[]it|ï×¡"; // com.jascotty2.JMinecraftFontWidthCalculator.charWidthIndexIndex
+//
+//            public void run() {
+////                if (i++ == -1) {
+//////                    String s = "";
+//////                    for (int i = 0; i < 300; ++i) {
+//////                        String n = String.valueOf(i);
+//////                        if (i % 10 == 0) {
+//////                            if (i == 0) {
+//////                                s += "0";
+//////                            } else {
+//////                                s += n.charAt(n.length() - 2);
+//////                            }
+//////                        } else {
+//////                            s += n.charAt(n.length() - 1);
+//////                        }
+//////                    }
+//////                    Help.super.getServer().broadcastMessage(s);
+////                    Help.super.getServer().broadcastMessage(Str.repeat("!", 300));
+////                } else {
+//                if (++i >= check.length()) {
+//                    i = 0;
+//                }
+//                Help.super.getServer().broadcastMessage(
+//                        //com.jascotty2.JMinecraftFontWidthCalculator.strPadCenterChat(" ", check.charAt(i))
+//                        com.jascotty2.JMinecraftFontWidthCalculator.strPadLeftChat("-", check.charAt(i)));
+//            }
+////            }
+//        }, 70, 70);
+
     }
 
     @Override
