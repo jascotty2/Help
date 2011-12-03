@@ -4,6 +4,16 @@ Help
 jascotty2 Changelog
 -----------------
 
+Version 1.0
+full bottom-up rewrite
+autohelp generation added, thanks to Brain for the idea & initial coding
+files in help folders load with the foldername first (for category consistancy checks)
+duplicate command validation 
+- checks # of parameters, too, so "command [test]" and "command <test param>" validate as identical
+- duplicate commands are not added & throws a warning into the server log output
+
+
+
 Version 0.3.2 - 7/21/11
 lowered chat fill size.. should fix some wrapping issues
 
