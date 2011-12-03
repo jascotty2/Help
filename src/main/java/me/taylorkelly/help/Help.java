@@ -1,241 +1,276 @@
+/**
+ * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
+ * Description: a refactored/rewrit version of Help, kept in the same namespace for compatibility
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package me.taylorkelly.help;
 
-import com.jascotty2.CheckInput;
-import com.jascotty2.Str;
-import java.io.File;
 import java.util.ArrayList;
-import org.bukkit.ChatColor;
+import me.taylorkelly.help.utils.HelpLogger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Help extends JavaPlugin {
 
-    protected static String name = "Help";
-    protected static String version = "?";
-    protected static File dataFolder = null;
-    protected static HelpList helpList = null;
-    protected static HelpSettings settings = null;
+	public final static String name = "Help";
+	final HelpConfig config = new HelpConfig(this);
+	final HelpDB helpEntries = new HelpDB(this);
+	final HelpAutoLoadListener autoloader = new HelpAutoLoadListener(this);
+	
+	public Help() {
+		helpEntries.load();
+		HelpLogger.Info("Help Init Finished");
+	}
 
-    public Help() {
-        dataFolder = this.getDataFolder();
-        if (dataFolder == null) {
-            dataFolder = new File("plugins" + File.separatorChar + "Help");
-        }
-        settings = new HelpSettings(dataFolder);
-        helpList = new HelpList(dataFolder);
-    }
+	public void onEnable() {
+		this.getServer().getPluginManager().registerEvent(Type.PLUGIN_ENABLE, autoloader, Priority.Monitor, this);
+		if(config.autoHelp) {
+			helpEntries.autoLoad();
+		}
+		HelpLogger.Info("Help v" + getDescription().getVersion() + " enabled");
+	}
 
-    @Override
-    public void onEnable() {
+	public void onDisable() {
+	}
 
-        if (settings == null || helpList == null) {
-            settings = new HelpSettings(dataFolder);
-            helpList = new HelpList(dataFolder);
-        }
-        HelpLoader.load(dataFolder, helpList);
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
 
-        version = this.getDescription().getVersion();
+		return true;
+	}
 
-        HelpPermissions.initialize(getServer());
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param plugin plugin that this command is for
+	 * @return if the command was registered in Help
+	 */
+	public boolean registerCommand(String command, String description, Plugin plugin) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				false, true, null, null, null);
+	}
 
-        HelpLogger.Log(version + " enabled");
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description,
+			Plugin plugin, boolean main) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, null, null, null);
+	}
 
-//        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-//
-//            int i = -1;
-//            String check = " !,.:;I[]it|ï×¡"; // com.jascotty2.JMinecraftFontWidthCalculator.charWidthIndexIndex
-//
-//            public void run() {
-////                if (i++ == -1) {
-//////                    String s = "";
-//////                    for (int i = 0; i < 300; ++i) {
-//////                        String n = String.valueOf(i);
-//////                        if (i % 10 == 0) {
-//////                            if (i == 0) {
-//////                                s += "0";
-//////                            } else {
-//////                                s += n.charAt(n.length() - 2);
-//////                            }
-//////                        } else {
-//////                            s += n.charAt(n.length() - 1);
-//////                        }
-//////                    }
-//////                    Help.super.getServer().broadcastMessage(s);
-////                    Help.super.getServer().broadcastMessage(Str.repeat("!", 300));
-////                } else {
-//                if (++i >= check.length()) {
-//                    i = 0;
-//                }
-//                Help.super.getServer().broadcastMessage(
-//                        //com.jascotty2.JMinecraftFontWidthCalculator.strPadCenterChat(" ", check.charAt(i))
-//                        com.jascotty2.JMinecraftFontWidthCalculator.strPadLeftChat("-", check.charAt(i)));
-//            }
-////            }
-//        }, 70, 70);
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param plugin plugin that this command is for
+	 * @param permissions the permission(s) necessary to view this entry
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description,
+			Plugin plugin, String... permissions) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				false, true, permissions, null, null);
+	}
 
-    }
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @param permissions the permission(s) necessary to view this entry
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description,
+			Plugin plugin, boolean main, String... permissions) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, permissions, null, null);
+	}
 
-    @Override
-    public void onDisable() {
-        helpList = null;
-        settings = null;
-        HelpLogger.Log("disabled");
-    }
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category category to classify the command under
+	 * @param plugin plugin that this command is for
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description,
+			String category, Plugin plugin) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				false, true, null, new String[]{category}, null);
+	}
+	
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category categories to classify the command under
+	 * @param plugin plugin that this command is for
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description,
+			String[] category, Plugin plugin) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				false, true, null, category, null);
+	}
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        String commandName = command.getName().toLowerCase();
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category category to classify the command under
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description, String category,
+			Plugin plugin, boolean main) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, null, new String[]{category}, null);
+	}
+	
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category categories to classify the command under
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description, String[] category,
+			Plugin plugin, boolean main) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, null, category, null);
+	}
 
-        if (commandName.equals("help")) {
-            /**
-             * /help (#)
-             */
-            if (args.length == 0 || (args.length == 1 && CheckInput.IsInt(args[0]))) {
-                Lister lister = new Lister(helpList, sender);
-                if (args.length == 1) {
-                    int page = Integer.parseInt(args[0]);
-                    if (page < 1) {
-                        sender.sendMessage(ChatColor.RED + "Page number can't be below 1.");
-                        return true;
-                    } else if (page > lister.getMaxPages()) {
-                        sender.sendMessage(ChatColor.RED + "There are only " + lister.getMaxPages() + " pages of help");
-                        return true;
-                    } else if (page > 1) { // page is already at #1
-                        lister.setPage(page);
-                    }
-                }
-                lister.list();
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category category to classify the command under
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @param permissions the permission(s) necessary to view this entry
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description, String category,
+			Plugin plugin, boolean main, String... permissions) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, permissions, new String[]{category}, null);
+	}
 
-                /**
-                 * /help plugins
-                 */
-            } else if (args.length == 1 && args[0].equalsIgnoreCase("plugins")) {
-                helpList.listPlugins(sender);
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category categories to classify the command under
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @param permissions the permission(s) necessary to view this entry
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description, String[] category,
+			Plugin plugin, boolean main, String... permissions) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, permissions, category, null);
+	}
 
-                /**
-                 * /help reload
-                 */
-            } else if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                if (sender.isOp()) {
-                    settings.initialize(dataFolder);
-                    helpList.reload(sender, dataFolder);
-                } else {
-                    sender.sendMessage(ChatColor.RED + " You don't have permission to do this");
-                }
-                /**
-                 * /help search [query]
-                 */
-            } else if (args.length > 1 && args[0].equalsIgnoreCase("search")) {
-                Searcher searcher = new Searcher(helpList);
-                searcher.addPlayer(sender);
-                searcher.setQuery(Str.argStr(args, 1));
-                searcher.search();
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category category to classify the command under
+	 * @param extraHelp extra help info for looking up command help
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @param permissions the permission(s) necessary to view this entry
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description, String category,
+			String extraHelp, Plugin plugin, boolean main, String... permissions) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, permissions, new String[]{category}, extraHelp);
+	}
 
-                /**
-                 * /help [plugin] (#)
-                 */
-            } else if (args.length == 1 || (args.length == 2 && CheckInput.IsInt(args[1]))) {
-                Lister lister = new Lister(helpList, args[0], sender);
-                //TODO: if plugin has no entry, check if this is actually a command
-                if (args.length == 2) {
-                    int page = Integer.parseInt(args[1]);
-                    if (page < 1) {
-                        sender.sendMessage(ChatColor.RED + "Page number can't be below 1.");
-                        return true;
-                    } else if (page > lister.getMaxPages(sender)) {
-                        sender.sendMessage(ChatColor.RED + "There are only " + lister.getMaxPages(sender) + " pages of help");
-                        return true;
-                    }
-                    lister.setPage(page);
-                } else {
-                    lister.setPage(1);
-                }
-                lister.list();
-            } else {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
+	/**
+	 * Register a command with a plugin
+	 * @param command the command string
+	 * @param description command description
+	 * @param category categories to classify the command under
+	 * @param extraHelp extra help info for looking up command help
+	 * @param plugin plugin that this command is for
+	 * @param main if this command should be listed on the main pages
+	 * @param permissions the permission(s) necessary to view this entry
+	 * @return true if command was added to the help registry <br />
+	 * false if not allowed, or if the command already registered
+	 */
+	public boolean registerCommand(String command, String description, String[] category,
+			String extraHelp, Plugin plugin, boolean main, String... permissions) {
+		return helpEntries.registerCommandAPI(plugin, command, description,
+				main, true, permissions, category, extraHelp);
+	}
 
-    /**
-     * Register a command with a plugin
-     * @param command the command string
-     * @param description command description
-     * @param plugin plugin that this command is for
-     * @return if the command was registered in Help
-     */
-    public boolean registerCommand(String command, String description, Plugin plugin) {
-        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
-            return helpList.registerCommand(command, description, plugin.getDescription().getName(), false, new String[]{}, this.getDataFolder());
-        }
-        return false;
-    }
+	/**
+	 * Gets the help text associated with this command
+	 * @param command the command to lookup
+	 * @return help text, or null if none
+	 */
+	public String getHelp(String command) {
+		throw new UnsupportedOperationException("");
+	}
 
-    /**
-     * Register a command with a plugin
-     * @param command the command string
-     * @param description command description
-     * @param plugin plugin that this command is for
-     * @param main if this command should be listed on the main pages
-     * @return
-     */
-    public boolean registerCommand(String command, String description, Plugin plugin, boolean main) {
-        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
-            return helpList.registerCommand(command, description, plugin.getDescription().getName(), main, new String[]{}, this.getDataFolder());
-        }
-        return false;
-    }
+	/**
+	 * Gets all of the commands registered with this plugin
+	 * @param plugin plugin to lookup
+	 * @return list of commands
+	 */
+	public ArrayList<String> getPluginCommands(String plugin) {
+		return helpEntries.getPluginCommands(plugin);
+	}
 
-    /**
-     * Register a command with a plugin
-     * @param command the command string
-     * @param description command description
-     * @param plugin plugin that this command is for
-     * @param permissions the permission(s) necessary to view this entry
-     * @return
-     */
-    public boolean registerCommand(String command, String description, Plugin plugin, String... permissions) {
-        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
-            return helpList.registerCommand(command, description, plugin.getDescription().getName(), false, permissions, this.getDataFolder());
-        }
-        return false;
-    }
+	/**
+	 * Get the help entries associated with this plugin
+	 * @param plugin plugin to lookup
+	 * @return a copy of the plugin help entries
+	 */
+	public ArrayList<HelpEntry> getPluginHelp(String plugin) {
+		return helpEntries.getPluginHelp(plugin);
+	}
+	
+} // end class Help
 
-    /**
-     * Register a command with a plugin
-     * @param command the command string
-     * @param description command description
-     * @param plugin plugin that this command is for
-     * @param main if this command should be listed on the main pages
-     * @param permissions the permission(s) necessary to view this entry
-     * @return
-     */
-    public boolean registerCommand(String command, String description, Plugin plugin, boolean main, String... permissions) {
-        if (helpList != null && (settings.allowPluginHelp || plugin == this) && plugin != null) {
-            return helpList.registerCommand(command, description, plugin.getDescription().getName(), main, permissions, this.getDataFolder());
-        }
-        return false;
-    }
-
-    /**
-     * Gets the help text associated with this command
-     * @param command the command to lookup
-     * @return help text, or null if none
-     */
-    public String getHelp(String command) {
-        return helpList.getCommandHelp(command);
-    }
-
-    /**
-     * Gets all of the commands registered with this plugin
-     * @param plugin plugin to lookup
-     * @return list of commands
-     */
-    public ArrayList<String> getPluginCommands(String plugin) {
-        return helpList.getPluginCommands(plugin);
-    }
-}

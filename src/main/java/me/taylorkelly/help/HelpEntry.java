@@ -1,150 +1,199 @@
+/**
+ * Copyright (C) 2011 Jacob Scott <jascottytechie@gmail.com>
+ * Description: ( TODO )
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package me.taylorkelly.help;
 
-import com.jascotty2.JMinecraftFontWidthCalculator;
-import java.io.File;
-import java.io.IOException;
-import org.bukkit.ChatColor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class HelpEntry {
+public class HelpEntry implements Cloneable {
 
-    public String command;
-    public String description;
-    public String[] permissions;
-    public boolean main;
-    public String plugin;
-    public boolean visible;
+	public String command, help, extrahelp = null, key = null, filename = null;
+	public boolean isMain = true, isAuto = false, visible = true;
+	String[] permissions;
+	public final ArrayList<String> categories = new ArrayList<String>();
 
-    public HelpEntry(String command, String description, String plugin, boolean main, String[] permissions, boolean visible) {
-        this.command = command;
-        this.description = description;
-        this.plugin = plugin;
-        this.main = main;
-        this.permissions = permissions;
-        this.visible = visible;
-    }
+	public HelpEntry() {
+	}
 
-    public HelpEntry(String command, String description, String plugin) {
-        this(command, description, plugin, false, new String[]{}, true);
-    }
+	public HelpEntry(String command, String description,
+			boolean isMain, boolean visible, boolean auto,
+			String[] perms, String[] categories,
+			String extraHelp, String customKey, String filename) {
+		this.command = command;
+		this.help = description;
+		this.isMain = isMain;
+		this.isAuto = auto;
+		this.permissions = perms;
+		if (categories != null) {
+			this.categories.addAll(Arrays.asList(categories));
+		}
+		this.extrahelp = extraHelp;
+		this.key = customKey;
+		this.filename = filename;
+	}
 
-    public HelpEntry(String command, String description, String plugin, boolean main) {
-        this(command, description, plugin, main, new String[]{}, true);
-    }
+	public HelpEntry(String command, String description,
+			boolean isMain, boolean visible, boolean auto,
+			List<String> perms, List<String> categories,
+			String extraHelp, String customKey, String filename) {
+		this.command = command;
+		this.help = description;
+		this.isMain = isMain;
+		this.isAuto = auto;
+		if (perms != null) {
+			this.permissions = perms.toArray(new String[0]);
+		}
+		if (categories != null) {
+			this.categories.addAll(categories);
+		}
+		this.extrahelp = extraHelp;
+		this.key = customKey;
+		this.filename = filename;
+	}
 
-    public HelpEntry(String command, String description, String plugin, String[] permissions) {
-        this(command, description, plugin, false, permissions, true);
-    }
+	public void clearPermissions() {
+		permissions = null;
+	}
 
-    public boolean playerCanUse(CommandSender player) {
-        if (permissions == null || permissions.length == 0 || !(player instanceof Player)) {
-            return true;
-        }
-        for (String permission : permissions) {
-            if (permission.equalsIgnoreCase("OP") && player.isOp()) {
-                return true;
-            } else if (HelpPermissions.permission((Player) player, permission)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	public void setPermissions(String perm) {
+		permissions = new String[]{perm};
+	}
 
-    public String message() {
-        ChatColor commandColor = ChatColor.RED;
-        ChatColor pluginColor = ChatColor.GREEN;
-        ChatColor descriptionColor = ChatColor.WHITE;
-        return String.format("%s/%s%s : (via %s%s%s) %s%s",
-                commandColor.toString(), command, ChatColor.WHITE.toString(),
-                pluginColor.toString(), plugin, ChatColor.WHITE.toString(),
-                descriptionColor.toString(), description);
-    }
+	public void setPermissions(String[] perm) {
+		permissions = perm;
+	}
 
-    @Override
-    public String toString() {
-        return String.format("%s/%s%s : %s%s",
-                Help.settings.commandColor.toString(), command, ChatColor.WHITE.toString(),
-                Help.settings.descriptionColor.toString(), description).
-                replace("[", Help.settings.commandBracketColor.toString() + "[").replace("]", "]" + Help.settings.commandColor.toString());
-    }
+	public void addPermission(String perm) {
+		if (permissions == null || permissions.length == 0) {
+			permissions = new String[]{perm};
+		} else {
+			permissions = Arrays.asList(permissions, perm).toArray(permissions);
+		}
+	}
 
-    public String chatString() {
-        String line = String.format("%s/%s%s : %s",
-                Help.settings.commandColor.toString(), command, ChatColor.WHITE.toString(),
-                Help.settings.descriptionColor.toString());
+	public List<String> getPermissionList() {
+		return permissions != null ? Arrays.asList(permissions) : new ArrayList<String>();
+	}
 
-        int descriptionSize = JMinecraftFontWidthCalculator.getStringWidth(description);
-        int sizeRemaining = JMinecraftFontWidthCalculator.chatwidth - JMinecraftFontWidthCalculator.getStringWidth(line);
+	public boolean playerCanUse(CommandSender player) {
+		if (permissions == null || permissions.length == 0 || !(player instanceof Player)) {
+			return true;
+		}
+		for (String permission : permissions) {
+			if (permission != null
+					&& ((permission.equalsIgnoreCase("OP") && player.isOp())
+					|| (HelpPermissions.permission((Player) player, permission))
+					|| (permission.equalsIgnoreCase(((Player) player).getName())))) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-        line += JMinecraftFontWidthCalculator.strPadLeftChat(
-                description.replace("[", Help.settings.commandBracketColor.toString() + "[").
-                replace("]", "]" + Help.settings.descriptionColor.toString()), sizeRemaining, ' ');
+	public boolean hasCategory(String cat) {
+		for (String c : categories) {
+			if (c.equalsIgnoreCase(cat)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-        if (Help.settings.shortenEntries) {
-            return JMinecraftFontWidthCalculator.strChatTrim(line);
-        } else if (sizeRemaining > descriptionSize || !Help.settings.useWordWrap) {
-            return line;
-        } else if (Help.settings.wordWrapRight) {
-            return JMinecraftFontWidthCalculator.strChatWordWrapRight(line, 10, ' ', ':');
-        } else {
-            return JMinecraftFontWidthCalculator.strChatWordWrap(line, 10);
-        }
-    }
+	public String getKey() {
+		return key == null || key.isEmpty() ? command.replace(" ", "").replace("...", "?").replace(".", "?") : key;
+	}
 
-    public String consoleString(int width) {
-        String line = String.format("%s/%s%s : %s",
-                Help.settings.commandColor.toString(), command, ChatColor.WHITE.toString(),
-                Help.settings.descriptionColor.toString());
+	/** 
+	 * @return the name of the file this key is to be saved under <br />
+	 * if none defined (and no category) returns null
+	 */
+	public String getFilename() {
+		return filename != null ? filename : (categories.isEmpty() ? null : categories.get(0).toLowerCase() + ".yml");
+	}
 
-        int descriptionSize = JMinecraftFontWidthCalculator.strLen(description);
-        int sizeRemaining = width - JMinecraftFontWidthCalculator.strLen(line);
+	public void set(HelpEntry e) {
+		this.command = e.command;
+		this.help = e.help;
+		this.extrahelp = e.extrahelp;
+		this.key = e.key;
+		this.isAuto = e.isAuto;
+		this.isMain = e.isMain;
+		this.visible = e.visible;
+		this.permissions = e.permissions == null ? null : Arrays.copyOf(e.permissions, e.permissions.length);
+		this.categories.clear();
+		this.categories.addAll(e.categories);
+	}
 
-        line += JMinecraftFontWidthCalculator.unformattedPadLeft(
-                description.replace("[", Help.settings.commandBracketColor.toString() + "[").
-                replace("]", "]" + Help.settings.descriptionColor.toString()), sizeRemaining, ' ');
+	@Override
+	public HelpEntry clone() {
+		HelpEntry clone = new HelpEntry();
+		clone.command = command;
+		clone.help = help;
+		clone.extrahelp = extrahelp;
+		clone.key = key;
+		clone.isAuto = isAuto;
+		clone.isMain = isMain;
+		clone.visible = visible;
+		if (permissions != null) {
+			clone.permissions = Arrays.copyOf(permissions, permissions.length);
+		}
+		clone.categories.addAll(categories);
+		return clone;
+	}
 
-        if (Help.settings.shortenEntries) {
-            return JMinecraftFontWidthCalculator.strTrim(line, width);
-        } else if (sizeRemaining > descriptionSize || !Help.settings.useWordWrap) {
-            return line;
-        } else if (Help.settings.wordWrapRight) {
-            return JMinecraftFontWidthCalculator.strWordWrapRight(line, width, 10, ' ', ':');
-        } else {
-            return JMinecraftFontWidthCalculator.strWordWrap(line, width, 10);
-        }
-    }
+	public boolean isIdentical(HelpEntry other) {
+		if (other != null
+				&& strEqual(other.command, command)
+				&& strEqual(other.help, help)
+				&& strEqual(other.extrahelp, extrahelp)
+				&& strEqual(other.key, key)
+				&& other.isAuto == isAuto
+				&& other.isMain == isMain
+				&& other.visible == visible
+				&& other.categories.size() == categories.size()
+				&& other.permissions.length == permissions.length) {
+			for (String c : other.categories) {
+				if (!categories.contains(c)) {
+					return false;
+				}
+			}
+			for (String p : other.permissions) {
+				boolean has = false;
+				for (String p2 : permissions) {
+					if (p.equals(p2)) {
+						has = true;
+						break;
+					}
+				}
+				if (!has) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	private static boolean strEqual(String s1, String s2) {
+		return (s1 == null && s2 == null) || (s1 != null && s2 != null && s1.equals(s2));
+	}
+} // end class HelpEntry
 
-    public void setEntry(HelpEntry toCopy) {
-        this.command = toCopy.command;
-        this.description = toCopy.description;
-        this.plugin = toCopy.plugin;
-        this.main = toCopy.main;
-        this.permissions = toCopy.permissions;
-        this.visible = toCopy.visible;
-    }
-
-    public void save(File dataFolder) {
-        File folder = new File(dataFolder, "ExtraHelp");
-        File file = new File(folder, plugin + ".yml");//_orig
-        if (file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException ex) {
-            }
-        }
-        BetterConfig config = new BetterConfig(file);
-        config.load();
-
-        String node = command.replace(" ", "");
-        config.setProperty(node + ".command", command);
-        config.setProperty(node + ".description", description);
-        //config.setProperty(node + ".plugin", plugin);
-        config.setProperty(node + ".main", main);
-        if (permissions != null && permissions.length != 0) {
-            config.setProperty(node + ".permissions", permissions);
-        }
-        config.setProperty(node + ".visible", visible);
-        config.save();
-    }
-}

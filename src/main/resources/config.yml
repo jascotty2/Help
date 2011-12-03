@@ -1,0 +1,53 @@
+## Help Configuration file ##
+#############################
+
+
+# settings relating to help registering
+settings:
+    # allow a plugin to overwrite help entries
+    allowPluginOverride: false
+    
+    # if plugins can register custom Help entries
+    allowPluginHelp: true
+    
+    # if the help entries registered should be saved
+    savePluginHelp: false
+    
+    # if added entries should also be sorted (by command string)
+    sortPluginHelp: true
+
+    # if should scan plugin jars for command help
+    autoHelp: true
+
+
+# settings related to displaying & formatting
+display:
+    # max number of lines to display for a pagesize
+    linesPerPage: 9
+
+    # how to display help entries
+    # -- possible values: --
+    # oneLine: show in old, one-line style (string is truncated)
+    # text:    the text is not formatted, and long strings are
+    #             automatically wrapped by minecraft
+    # wrap:    smart line wrapping uses word breaks
+    # column:  commands shown on the left, description word-wrapped on the right
+    # default: column
+    style: column
+    
+    # if should check if the entries go to a valid & enabled plugin
+    #     (so that unused plugin help is not displayed)
+    checkActive: true
+
+    # custom command coloring
+    # avaliable colors:
+    # white, yellow, gold, lime, green, teal, aqua, blue, dark blue, 
+    # purple, pink, red, dark red, light gray, gray, black
+    commandColor: red
+    # []
+    commandBracketColor: light gray
+    # <>
+    commandCarrotColor: gray
+    descriptionColor: white
+    # the color for the page header
+    introDashColor: gold

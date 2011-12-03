@@ -1,12 +1,10 @@
-package me.taylorkelly.help;
+package me.taylorkelly.oldhelp;
 
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.nijikokun.bukkit.Permissions.Permissions;
-import me.jascotty2.lib1.Str;
-import me.taylorkelly.help.utils.HelpLogger;
 import org.anjocaido.groupmanager.GroupManager;
 
 public class HelpPermissions {
@@ -27,15 +25,15 @@ public class HelpPermissions {
             permissionPlugin = groupManager;
             handler = PermissionHandler.GROUP_MANAGER;
             String version = groupManager.getDescription().getVersion();
-            HelpLogger.Info("Permissions enabled using: GroupManager v" + version);
+            HelpLogger.info("Permissions enabled using: GroupManager v" + version);
         } else if (permissions != null/* && permissions.isEnabled()*/) {
             permissionPlugin = permissions;
             handler = PermissionHandler.PERMISSIONS;
             String version = permissions.getDescription().getVersion();
-            HelpLogger.Info("Permissions enabled using: Permissions v" + version);
+            HelpLogger.info("Permissions enabled using: Permissions v" + version);
         } else {
             handler = PermissionHandler.NONE;
-            HelpLogger.Info("Using Bukkit for Permissions");
+            HelpLogger.warning("A permission plugin isn't loaded.");
         }
     }
 
@@ -47,19 +45,16 @@ public class HelpPermissions {
                 case GROUP_MANAGER:
                     return ((GroupManager) permissionPlugin).getWorldsHolder().getWorldPermissions(player).has(player, permission);
                 case NONE:
-					if (player.hasPermission(permission)) {
-						return true;
-					} else if (!permission.contains("*") && Str.count(permission, '.') >= 2) {
-						return player.hasPermission(permission.substring(0, permission.lastIndexOf('.') + 1) + "*");
-					}
-					return false;
+                    return true;
+                default:
+                    return true;
             }
         } catch (Exception ex) {
             if (!permErr) {
-                HelpLogger.Severe("Unexpected Error checking permission: defaulting to true", ex);
+                HelpLogger.severe("Unexpected Error checking permission: defaulting to true", ex);
                 permErr = true;
             }
+            return true;
         }
-		return true;
     }
 }
